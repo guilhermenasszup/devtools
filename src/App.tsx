@@ -1,35 +1,97 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  Card,
+  CardContent,
+  Divider,
+  FormControl,
+  Grid,
+  TextField,
+} from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const CPP = 0.025;
+  const [points, setPoints] = useState(0);
+  const [money, setMoney] = useState(0);
+  const [pointsInMoney, setPointsInMoney] = useState('');
+  const [moneyInPoints, setMoneyInPoints] = useState(0);
+
+  const handleCalculatePointsInMoney = useCallback(() => {
+    const newBalance = points * CPP;
+    setPointsInMoney(newBalance.toFixed(2));
+  }, [points]);
+
+  const handleCalculateMoneyInPoints = useCallback(() => {
+    const newBalance = money / CPP;
+    setMoneyInPoints(newBalance);
+  }, [money]);
+
+  useEffect(() => {
+    handleCalculatePointsInMoney();
+  }, [handleCalculatePointsInMoney]);
+
+  useEffect(() => {
+    handleCalculateMoneyInPoints();
+  }, [handleCalculateMoneyInPoints]);
+
+  function handleOnChangePoints(e: React.ChangeEvent<HTMLInputElement>): void {
+    const { value } = e.target;
+    setPoints(Number(value));
+  }
+
+  function handleOnChangeMoney(e: React.ChangeEvent<HTMLInputElement>): void {
+    const { value } = e.target;
+    setMoney(Number(value));
+  }
+
+  function formatPointsForMoney(): JSX.Element {
+    const formattedValue = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(Number(pointsInMoney) || 0);
+    return <>equivalem a {formattedValue}</>;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Grid container spacing={2}>
+      <Grid item xs={6}>
+        <Card>
+          <CardContent>
+            <h2>Calculo de pontos para reais</h2>
+            <FormControl sx={{ width: '100%' }}>
+              <TextField
+                label='informe os pontos...'
+                variant='standard'
+                onChange={handleOnChangePoints}
+                type='number'
+              />
+            </FormControl>
+          <strong>{formatPointsForMoney()}</strong>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      <Divider />
+
+      <Grid item xs={6}>
+        <Card>
+          <CardContent>
+            <h2>Calculo de reais para pontos</h2>
+            <FormControl sx={{ width: '100%' }}>
+              <TextField
+                label='informe a quantidade de reais...'
+                variant='standard'
+                onChange={handleOnChangeMoney}
+                type='number'
+              />
+            </FormControl>
+            <strong>equivalem a {moneyInPoints} pontos</strong>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
+  );
 }
 
-export default App
+export default App;
